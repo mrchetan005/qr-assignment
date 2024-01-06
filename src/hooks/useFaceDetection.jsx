@@ -1,12 +1,11 @@
 // useFaceDetection.js
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import * as faceapi from 'face-api.js';
 
-const useFaceDetection = (videoFile, playing, currentTime, onReady) => {
+const useFaceDetection = (videoFile, playing) => {
 
     const canvasRef = useRef(null);
     const videoRef = useRef(null);
-    const [isReady, setIsReady] = useState(false);
 
     useEffect(() => {
         const loadModels = async () => {
@@ -14,25 +13,24 @@ const useFaceDetection = (videoFile, playing, currentTime, onReady) => {
             await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
             await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
             await faceapi.nets.faceExpressionNet.loadFromUri('/models');
-            setIsReady(true);
-            onReady(true);
         };
 
         loadModels();
-    }, [onReady]);
+    }, []);
 
     useEffect(() => {
-        if (videoFile && playing && isReady) {
+        if (videoFile) {
+            console.log('playing', playing);
             const video = document.createElement('video');
             video.src = URL.createObjectURL(videoFile);
             video.crossOrigin = 'anonymous';
             video.muted = true;
-            video.play();
+            playing ? video.play() : video.pause();
 
             const canvas = canvasRef.current;
 
-            video.addEventListener('loadeddata', async () => {
-                const displaySize = { width: video.videoWidth, height: video.videoHeight };
+            const onLoadedData = async () => {
+                const displaySize = { width: video.width || 900, height: video.height || 1600 };
                 faceapi.matchDimensions(canvas, displaySize);
 
                 const renderFrame = async () => {
@@ -50,18 +48,20 @@ const useFaceDetection = (videoFile, playing, currentTime, onReady) => {
                 };
 
                 renderFrame();
-
-                return () => {
-                    video.pause();
-                    video.src = '';
-                };
-            });
+            };
+            video.addEventListener('loadeddata', onLoadedData);
 
             videoRef.current = video;
-        }
-    }, [videoFile, playing, isReady, currentTime]);
 
-    return <canvas className='absolute inset-0 bg-transparent border pointer-events-none' ref={canvasRef} />;
+            return () => {
+                video.removeEventListener('loadeddata', onLoadedData);
+            }
+        }
+    }, [videoFile, playing]);
+
+    return (
+        <canvas className='absolute inset-0 h-screen bg-transparent aspect-[9/16] pointer-events-none' ref={canvasRef} />
+    );
 };
 
 export default useFaceDetection;

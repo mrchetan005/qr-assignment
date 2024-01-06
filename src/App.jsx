@@ -2,65 +2,41 @@
 import { useEffect, useRef, useState } from 'react';
 import VideoUploader from './components/VideoUpload';
 import useFaceDetection from './hooks/useFaceDetection';
-import { IconButton } from '@material-tailwind/react';
-import { FaPause, FaPlay } from "react-icons/fa6";
+import VideoPlayer from './components/VideoPlayer';
 
 const App = () => {
   const videoRef = useRef();
   const [videoFile, setVideoFile] = useState(null);
   const [playing, setPlaying] = useState(false);
-  const [isReady, setIsReady] = useState(false);
-
-  const [videoState, setVideoState] = useState({
-    currentTime: 0,
-  });
 
   const handleVideoSelected = (file) => {
     setVideoFile(file);
-    setPlaying(true);
-    setVideoState({ currentTime: 0 });
   };
-
 
   useEffect(() => {
-
-  }, [isReady]);
-
-  const handlePlayPause = () => {
-    if (!isReady) {
-      return;
+    if (playing) {
+      videoRef.current?.play();
+    } else {
+      videoRef.current?.pause();
     }
-    setPlaying(!playing);
-  };
+  }, [playing]);
 
-  const onReady = (isLoadedModels) => {
-    setIsReady(isLoadedModels);
-  }
-
-  const faceDetectionCanvas = useFaceDetection(videoFile, playing, videoState.currentTime, onReady);
+  const faceDetectionCanvas = useFaceDetection(videoFile, playing);
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      {(videoFile && isReady) ?
-        <div className='relative w-full h-full'>
-          <video
-            ref={videoRef}
-            className='relative w-full h-full'
-            src={URL.createObjectURL(videoFile)}
-            crossOrigin='anonymous'></video>
-
-          {faceDetectionCanvas}
-
-          <div className='absolute bottom-0 left-0 right-0 flex items-center justify-center'>
-            <IconButton
-              className=''
-              onClick={handlePlayPause}
-            >
-              {playing ? <FaPause /> : <FaPlay />}
-            </IconButton>
-          </div>
+    <div className="relative flex flex-col items-center justify-center h-screen aspect-[9/16] m-auto">
+      <VideoPlayer
+        playing={playing}
+        setPlaying={setPlaying}
+        videoRef={videoRef}
+        videoFile={videoFile}
+        faceDetectionCanvas={faceDetectionCanvas}
+      />
+      {(!videoFile) && (
+        <div className="absolute">
+          <VideoUploader onVideoSelected={handleVideoSelected} />
         </div>
-        : <VideoUploader onVideoSelected={handleVideoSelected} />
+      )
       }
     </div>
   );
