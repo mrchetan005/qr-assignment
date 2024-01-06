@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 import VideoUploader from './components/VideoUpload';
 import useFaceDetection from './hooks/useFaceDetection';
 import VideoPlayer from './components/VideoPlayer';
+import { IconButton } from '@material-tailwind/react';
+import { BsCaretLeft } from "react-icons/bs";
 
 const App = () => {
   const videoRef = useRef();
@@ -21,6 +23,12 @@ const App = () => {
     }
   }, [playing]);
 
+  const onCancel = () => {
+    setVideoFile(null);
+    setPlaying(false);
+    window.location.reload();
+  }
+
   const faceDetectionCanvas = useFaceDetection(videoFile, playing);
 
   return (
@@ -38,6 +46,16 @@ const App = () => {
         </div>
       )
       }
+
+      <div className='absolute bottom-2 right-2'>
+        <IconButton
+          className='rounded-full'
+          size="lg"
+          onClick={onCancel}
+        >
+          <BsCaretLeft className="w-7 h-7" />
+        </IconButton>
+      </div>
     </div>
   );
 };

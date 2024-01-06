@@ -10,15 +10,16 @@ const VideoPlayer = ({ playing, setPlaying, videoRef, videoFile, faceDetectionCa
         <div className='relative w-full h-full group'>
             <video
                 ref={videoRef}
+                muted
                 className='relative w-full h-full object-cover aspect-[9/16] object-center'
                 src={videoFile && URL.createObjectURL(videoFile)}
                 crossOrigin='anonymous'></video>
 
             {faceDetectionCanvas}
 
-            {videoFile && (<div className='absolute inset-0 items-center justify-center hidden group-hover:flex'>
+            {videoFile && (<div className='absolute inset-0 flex items-end justify-center sm:hidden group-hover:flex'>
                 <IconButton
-                    className='pl-2 rounded-full'
+                    className='mb-2 rounded-full'
                     size="lg"
                     onClick={handlePlayPause}
                 >

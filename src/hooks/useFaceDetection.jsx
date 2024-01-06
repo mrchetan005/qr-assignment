@@ -1,40 +1,49 @@
 // useFaceDetection.js
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as faceapi from 'face-api.js';
 
 const useFaceDetection = (videoFile, playing) => {
+    const [isLoaded, setIsLoaded] = useState(false);
 
     const canvasRef = useRef(null);
     const videoRef = useRef(null);
 
     useEffect(() => {
         const loadModels = async () => {
-            await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
-            await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
-            await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
-            await faceapi.nets.faceExpressionNet.loadFromUri('/models');
+            try {
+                await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
+                await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
+                await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
+                await faceapi.nets.faceExpressionNet.loadFromUri('/models');
+                setIsLoaded(true);
+            } catch (error) {
+                setIsLoaded(false);
+            }
         };
 
         loadModels();
     }, []);
 
     useEffect(() => {
-        if (videoFile) {
+        if (isLoaded && videoFile) {
             console.log('playing', playing);
             const video = document.createElement('video');
             video.src = URL.createObjectURL(videoFile);
             video.crossOrigin = 'anonymous';
             video.muted = true;
             playing ? video.play() : video.pause();
+            videoRef.current = video;
 
             const canvas = canvasRef.current;
 
             const onLoadedData = async () => {
-                const displaySize = { width: video.width || 900, height: video.height || 1600 };
+                if (!playing) return;
+                const displaySize = { width: video.videoWidth, height: video.videoHeight };
                 faceapi.matchDimensions(canvas, displaySize);
 
                 const renderFrame = async () => {
-                    if (!video.paused && !video.ended) {
+                    if (playing && !video.paused && !video.ended) {
+                        console.log('draw');
                         const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors().withFaceExpressions();
                         const resizedDetections = faceapi.resizeResults(detections, displaySize);
 
@@ -50,17 +59,15 @@ const useFaceDetection = (videoFile, playing) => {
                 renderFrame();
             };
             video.addEventListener('loadeddata', onLoadedData);
-
-            videoRef.current = video;
-
             return () => {
+                console.log("unmounted");
                 video.removeEventListener('loadeddata', onLoadedData);
             }
         }
-    }, [videoFile, playing]);
+    }, [videoFile, playing, isLoaded]);
 
     return (
-        <canvas className='absolute inset-0 h-screen bg-transparent aspect-[9/16] pointer-events-none' ref={canvasRef} />
+        <canvas className='absolute object-cover inset-0 h-screen bg-transparent aspect-[9/16] pointer-events-none' ref={canvasRef} />
     );
 };
 
