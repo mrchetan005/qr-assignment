@@ -11,7 +11,7 @@ const VideoPlayer = () => {
         <div className='relative w-full h-full group'>
             <video
                 ref={videoRef}
-                className='relative w-full h-full object-cover aspect-[9/16] object-top'
+                className='relative w-full h-full object-cover sm:object-contain sm:object-center object-top  aspect-[9/16] md:aspect-auto'
                 src={videoFile && URL.createObjectURL(videoFile)}
                 crossOrigin='anonymous'>
             </video>

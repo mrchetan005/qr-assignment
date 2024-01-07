@@ -16,15 +16,6 @@ const Loop = () => {
         video.loop = isLoop;
     }, [isLoop, videoRef]);
 
-    useEffect(() => {
-        const video = videoRef.current;
-        if (!video) {
-            return;
-        }
-        video.loop = true;
-        setIsLoop(true);
-    }, [])
-
     const toggleLoop = () => {
         const video = videoRef.current;
         if (video) {

@@ -1,6 +1,5 @@
 import { useVideoContext } from "../hooks/useVideoContext";
 import Backward from "./Backward";
-// import FaceDetectButton from "./FaceDetectButton";
 import Forward from "./Forward";
 import Loop from "./Loop";
 import PlayPauseButton from "./PlayPauseButton";
