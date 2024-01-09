@@ -1,6 +1,6 @@
 
-import { IconButton } from "@material-tailwind/react";
-import { FaBackward } from "react-icons/fa6";
+import { IconButton, Tooltip } from "@material-tailwind/react";
+import { TbPlayerSkipBackFilled } from "react-icons/tb";
 import { useVideoContext } from "../hooks/useVideoContext";
 
 const Backward = () => {
@@ -16,15 +16,18 @@ const Backward = () => {
 
     return (
         <div className='flex items-end justify-center'>
-            <IconButton
-                variant="text"
-                color="white"
-                className='mb-2 transition duration-500 rounded-full shadow hover:scale-125'
-                size="md"
-                onClick={handleBackward}
-            >
-                <FaBackward className="w-6 h-6 mr-1" />
-            </IconButton>
+            <Tooltip content="backward (5s)" className="hidden text-black bg-white sm:block">
+                <IconButton
+                    variant="text"
+                    color="white"
+                    className='mb-2 transition duration-500 rounded-full shadow hover:scale-125'
+                    size="md"
+                    onClick={handleBackward}
+                >
+                    <TbPlayerSkipBackFilled className="w-6 h-6 mr-1" />
+                </IconButton>
+            </Tooltip>
+
         </div>
     )
 }

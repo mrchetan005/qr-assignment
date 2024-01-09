@@ -13,7 +13,7 @@ const Video = () => {
         if (!videoFile) {
             navigate('/');
         }
-    }, []);
+    }, [videoFile, navigate]);
 
     return (
         <>

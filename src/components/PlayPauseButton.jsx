@@ -1,4 +1,4 @@
-import { IconButton } from "@material-tailwind/react";
+import { IconButton, Tooltip } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import { FaPause, FaPlay } from "react-icons/fa6";
 import { useVideoContext } from "../hooks/useVideoContext";
@@ -39,30 +39,22 @@ const PlayPauseButton = () => {
         return () => {
             video.removeEventListener('ended', onEnded);
         }
-    }, [videoRef])
-
-    useEffect(() => {
-        const video = videoRef.current;
-        if (!video) {
-            return;
-        }
-
-        // video.play();
-        // setIsPlaying(true);
-    }, [])
+    }, [videoRef]);
 
     return (<div className='flex'>
-        <IconButton
-            color="deep-orange"
-            className='mb-2 transition duration-500 scale-125 rounded-full shadow hover:scale-150'
-            size="lg"
-            onClick={handlePlayPause}
-        >
-            {isPlaying
-                ? <FaPause className="w-6 h-6" />
-                : <FaPlay className="w-6 h-6 ml-1" />
-            }
-        </IconButton>
+        <Tooltip content={isPlaying ? "Pause" : "Play"} className="hidden text-black bg-white sm:block">
+            <IconButton
+                color="deep-orange"
+                className='mb-2 transition duration-500 scale-125 rounded-full shadow hover:scale-150'
+                size="lg"
+                onClick={handlePlayPause}
+            >
+                {isPlaying
+                    ? <FaPause className="w-6 h-6" />
+                    : <FaPlay className="w-6 h-6 ml-1" />
+                }
+            </IconButton>
+        </Tooltip>
     </div>
     )
 }

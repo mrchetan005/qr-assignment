@@ -16,7 +16,7 @@ const Layout = () => {
         })
     }, []);
     return (
-        <div className="lg:container  layout relative w-full flex items-center justify-center h-screen aspect-[9/16] sm:aspect-auto m-auto">
+        <div className="relative flex items-center justify-center w-full h-screen m-auto sm:aspect-auto">
             <Outlet />
         </div>
     )

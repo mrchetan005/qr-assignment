@@ -12,3 +12,7 @@ html,
 body {
 	overflow: hidden;
 }
+
+::selection {
+	display: none;
+}

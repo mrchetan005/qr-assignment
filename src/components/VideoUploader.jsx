@@ -8,8 +8,9 @@ const VideoUploader = ({ onVideoSelected }) => {
     };
 
     return (
-        <Button variant="filled" color="deep-purple" className="h-10 p-0 px-6 py-1 text-lg text-white transition duration-500 rounded-full shadow hover:scale-125 bg-gradient-to-r hover:bg-gradient-to-r hover:from-teal-500 hover:to-indigo-700 from-teal-500 to-indigo-700">
-            <label htmlFor="file" className="flex items-center justify-center gap-4 p-1 cursor-pointer">
+
+        <Button variant="filled" color="deep-purple" className="h-10 p-0 py-1 text-lg transition-all duration-300 rounded-full hover:text-amber-100 bg-gradient-to-r hover:bg-gradient-to-l from-gray-700 to-gray-800 active:scale-95 text-amber-300">
+            <label htmlFor="file" className="flex items-center justify-center gap-4 p-1 px-6 transition-all duration-300 cursor-pointer hover:scale-95">
                 <input
                     multiple={false}
                     id="file"
@@ -17,10 +18,12 @@ const VideoUploader = ({ onVideoSelected }) => {
                     accept="video/*"
                     className="hidden"
                     onChange={handleVideoChange}
-                />Get Started
+                />
+                Get Started
                 <FaVideo className="w-6 h-6" />
             </label>
         </Button>
+
     );
 };
 

@@ -1,4 +1,4 @@
-import { IconButton } from "@material-tailwind/react";
+import { IconButton, Tooltip } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import { MdVolumeUp, MdVolumeOff } from "react-icons/md";
 import { useVideoContext } from "../hooks/useVideoContext";
@@ -35,18 +35,20 @@ const Volume = () => {
 
     return (
         <div className='flex items-end justify-center'>
-            <IconButton
-                variant="text"
-                color="white"
-                className='mb-2 transition duration-500 rounded-full shadow hover:scale-125'
-                size="md"
-                onClick={toggleMute}
-            >
-                {isMuted
-                    ? <MdVolumeOff className="w-7 h-7" />
-                    : <MdVolumeUp className="w-7 h-7" />
-                }
-            </IconButton>
+            <Tooltip content={isMuted ? "Unmute" : "Mute"} className="hidden text-black bg-white sm:block">
+                <IconButton
+                    variant="text"
+                    color="white"
+                    className='mb-2 transition duration-500 rounded-full shadow hover:scale-125'
+                    size="md"
+                    onClick={toggleMute}
+                >
+                    {isMuted
+                        ? <MdVolumeOff className="w-7 h-7" />
+                        : <MdVolumeUp className="w-7 h-7" />
+                    }
+                </IconButton>
+            </Tooltip>
         </div>
     )
 }

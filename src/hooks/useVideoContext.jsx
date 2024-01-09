@@ -7,9 +7,10 @@ const VideoContextProvider = ({ children }) => {
     const [isFaceDetecting, setIsFaceDetecting] = useState(false);
 
     const videoRef = useRef(null);
+    const canvasRef = useRef(null);
 
     return (
-        <videoContext.Provider value={{ videoFile, setVideoFile, videoRef, isFaceDetecting, setIsFaceDetecting }}>
+        <videoContext.Provider value={{ videoFile, setVideoFile, videoRef, canvasRef, isFaceDetecting, setIsFaceDetecting }}>
             {children}
         </videoContext.Provider>
     )

@@ -1,4 +1,4 @@
-import { IconButton } from "@material-tailwind/react";
+import { IconButton, Tooltip } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import { TbRepeatOff, TbRepeat } from "react-icons/tb";
 import { useVideoContext } from "../hooks/useVideoContext";
@@ -25,18 +25,20 @@ const Loop = () => {
     };
 
     return (<div className='flex items-end justify-center'>
-        <IconButton
-            variant="text"
-            color="white"
-            className='mb-2 transition duration-500 rounded-full shadow hover:scale-125'
-            size="md"
-            onClick={toggleLoop}
-        >
-            {isLoop
-                ? <TbRepeat className="w-7 h-7" />
-                : <TbRepeatOff className="w-7 h-7" />
-            }
-        </IconButton>
+        <Tooltip placement="right" content={isLoop ? "Loop Off" : "Loop On"} className="hidden text-black bg-white sm:block">
+            <IconButton
+                variant="text"
+                color="white"
+                className='ml-4 transition duration-500 rounded-full shadow hover:scale-125'
+                size="md"
+                onClick={toggleLoop}
+            >
+                {isLoop
+                    ? <TbRepeat className="w-6 h-6" />
+                    : <TbRepeatOff className="w-6 h-6" />
+                }
+            </IconButton>
+        </Tooltip>
     </div>
     )
 }
