@@ -8,14 +8,16 @@ const VideoPlayer = () => {
 
     return (
         <div className='relative w-full h-full group'>
+            <FaceDetectionCanvas />
             <video
                 ref={videoRef}
-                className='relative object-contain object-center w-full h-full sm:object-center md:aspect-auto'
+                // className='relative object-contain object-center w-full h-full '
+                className="absolute hidden object-left-top"
+                height={500}
+                width={500}
                 src={videoFile && URL.createObjectURL(videoFile)}
                 crossOrigin='anonymous'>
             </video>
-
-            <FaceDetectionCanvas />
             <Actions />
         </div>
     )

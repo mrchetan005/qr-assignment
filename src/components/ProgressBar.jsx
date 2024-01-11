@@ -5,7 +5,7 @@ import { Slider } from "@material-tailwind/react";
 
 const ProgressBar = () => {
     const { videoRef } = useVideoContext();
-    const [completed, setCompleted] = useState(0);
+    const [completed, setCompleted] = useState(0.1);
 
     useEffect(() => {
         const video = videoRef.current;
@@ -37,7 +37,6 @@ const ProgressBar = () => {
             <Slider
                 onChange={handleProgressBarClick}
                 value={completed}
-                defaultValue={0}
                 color="deep-orange"
             />
         </div>

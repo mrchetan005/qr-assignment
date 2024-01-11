@@ -1,9 +1,11 @@
 import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import * as faceapi from 'face-api.js';
+import { useVideoContext } from "../hooks/useVideoContext";
 
 
 const Layout = () => {
+    const { setIsModelsLoaded } = useVideoContext();
     useEffect(() => {
         Promise.all([
             faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
@@ -13,6 +15,7 @@ const Layout = () => {
             faceapi.nets.ageGenderNet.loadFromUri('/models')
         ]).then(() => {
             console.log('loaded');
+            setIsModelsLoaded(true);
         })
     }, []);
     return (
