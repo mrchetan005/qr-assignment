@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useVideoContext } from "../hooks/useVideoContext";
+import { useVideoContext } from "../../hooks/useVideoContext";
 import Backward from "./Backward";
 import Forward from "./Forward";
 import Loop from "./Loop";

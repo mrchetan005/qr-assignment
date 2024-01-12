@@ -1,7 +1,7 @@
 import { IconButton, Tooltip } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import { TbRepeatOff, TbRepeat } from "react-icons/tb";
-import { useVideoContext } from "../hooks/useVideoContext";
+import { useVideoContext } from "../../hooks/useVideoContext";
 
 
 const Loop = () => {

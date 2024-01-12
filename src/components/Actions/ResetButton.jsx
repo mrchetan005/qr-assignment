@@ -1,15 +1,19 @@
 import { IconButton, Tooltip } from "@material-tailwind/react";
 import { FaXmark } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
-import { useVideoContext } from "../hooks/useVideoContext";
+import { useVideoContext } from "../../hooks/useVideoContext";
 
 
 const ResetButton = () => {
-    const { setVideoFile } = useVideoContext();
+    const { setVideoFile, videoRef, canvasRef, setIsFaceDetecting } = useVideoContext();
     const navigate = useNavigate();
 
     const onCancel = () => {
+        // ! Reset the video and canvas
         setVideoFile(null);
+        videoRef.current = null;
+        canvasRef.current = null;
+        setIsFaceDetecting(false);
         navigate('/');
     }
 

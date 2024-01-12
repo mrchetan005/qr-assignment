@@ -1,7 +1,7 @@
 import { IconButton, Tooltip } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import { FaPause, FaPlay } from "react-icons/fa6";
-import { useVideoContext } from "../hooks/useVideoContext";
+import { useVideoContext } from "../../hooks/useVideoContext";
 
 
 const PlayPauseButton = () => {

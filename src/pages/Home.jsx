@@ -1,8 +1,8 @@
 
 import { useNavigate } from 'react-router-dom';
-import VideoUploader from '../components/VideoUploader';
 import { useVideoContext } from '../hooks/useVideoContext';
 import { Chip } from '@material-tailwind/react';
+import VideoUploader from '../components/Utils/VideoUploader';
 
 const Home = () => {
     const { setVideoFile } = useVideoContext();

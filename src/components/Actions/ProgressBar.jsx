@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useVideoContext } from "../hooks/useVideoContext";
+import { useVideoContext } from "../../hooks/useVideoContext";
 import { Slider } from "@material-tailwind/react";
 
 
@@ -15,7 +15,7 @@ const ProgressBar = () => {
         }
 
         const updateProgress = () => {
-            setCompleted(Math.floor((video.currentTime / video.duration) * 100));
+            setCompleted(Math.floor((video.currentTime / video.duration) * 100) || 0.1);
         };
 
         video.addEventListener("timeupdate", updateProgress);

@@ -1,7 +1,7 @@
 import { IconButton, Tooltip } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import { MdVolumeUp, MdVolumeOff } from "react-icons/md";
-import { useVideoContext } from "../hooks/useVideoContext";
+import { useVideoContext } from "../../hooks/useVideoContext";
 
 
 const Volume = () => {

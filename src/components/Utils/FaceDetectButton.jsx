@@ -4,22 +4,26 @@ import { useState } from "react";
 import { TbHandClick } from "react-icons/tb";
 import { TbFaceMaskOff } from "react-icons/tb";
 import { TbFaceId } from "react-icons/tb";
+import { useVideoContext } from "../../hooks/useVideoContext";
 
 const FaceDetectButton = ({ isFaceDetecting, setIsFaceDetecting }) => {
+    const { isModelsLoaded } = useVideoContext();
     const [showBadge, setShowBadge] = useState(true);
 
     const toggleFaceDetectMode = () => {
+        if (!isModelsLoaded) return false;
         setShowBadge(false);
-        setIsFaceDetecting(prev => ({
+        setIsFaceDetecting((prev) => ({
             detecting: !prev.detecting
         }));
     };
+
 
     return (
         <div className='relative flex items-end justify-center'>
             <Tooltip
                 placement="left"
-                content={isFaceDetecting.detecting ? "Disable Face Recoginition" : "Enable Face Recoginition"}
+                content={isFaceDetecting.detecting ? "Enabled Face Recoginition" : "Enable Face Recoginition"}
                 className="hidden text-black bg-white sm:block">
                 <IconButton
                     variant={isFaceDetecting.detecting ? "filled" : "text"}
