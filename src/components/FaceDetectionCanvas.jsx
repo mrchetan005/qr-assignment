@@ -5,23 +5,19 @@ import FaceDetectButton from './Utils/FaceDetectButton';
 import { fabric } from 'fabric';
 import Processing from './Utils/Processing';
 
-
-
 const FaceDetectionCanvas = () => {
     const [isFaceDetecting, setIsFaceDetecting] = useState({ detecting: false });
     const [isProcessing, setIsProcessing] = useState(false);
-
-    const [faceDetector, setFaceDetector] = useState([]);
-    const [fabVideo, setFabVideo] = useState(null);
+    const fabVideo = useRef(null);
+    const faceDetector = useRef([]);
     const { videoRef, canvasRef } = useVideoContext();
     const fabCanvas = useRef(null);
     const animationFrame = useRef(null);
 
     let index = 0;
-    let currentFabVideos = useRef([]);
     let intervalIds = [];
 
-    const createAndRenderCanvas = () => {
+    const createAndRenderCanvas = async () => {
         fabCanvas.current = null;
         const aspectRatio = videoRef.current.videoWidth / videoRef.current.videoHeight;
 
@@ -34,7 +30,7 @@ const FaceDetectionCanvas = () => {
         const clipPath = new fabric.Rect({
             left: 142,
             top: 0,
-            width: 360,
+            width: 202,
             height: canvasRef.current.height,
             absolutePositioned: true
         })
@@ -53,7 +49,7 @@ const FaceDetectionCanvas = () => {
         });
 
         fabCanvas.current.add(videoCanvas);
-        setFabVideo(videoCanvas);
+        fabVideo.current = videoCanvas;
 
         const renderCanvas = () => {
             if (!fabCanvas.current) return;
@@ -64,47 +60,50 @@ const FaceDetectionCanvas = () => {
         renderCanvas();
     }
 
-    const drawRect = (coord) => {
-        if (currentFabVideos.current.length > 0 || coord.length === 0) {
-            // currentFabVideos.current.forEach(curr => fabCanvas.current.remove(curr));
-        }
+    const drawFabVideoClipPath = (coord) => {
 
-        console.log(currentFabVideos.current);
 
         coord.forEach(({ box }) => {
             const clipPathRect = new fabric.Rect({
                 left: box?.left,
                 top: 0,
                 right: box?.right,
-                width: 360 - 20,
+                width: 202,
                 height: canvasRef.current.height,
                 absolutePositioned: true
             });
 
-            fabVideo.set({ clipPath: clipPathRect });
+            fabVideo.current.set({ clipPath: clipPathRect });
 
-            fabCanvas.current.add(fabVideo);
-            fabCanvas.current.bringToFront(fabVideo);
-            fabCanvas.current.setActiveObject(fabVideo);
+            fabCanvas.current.add(fabVideo.current);
+            fabCanvas.current.bringToFront(fabVideo.current);
+            fabCanvas.current.setActiveObject(fabVideo.current);
             console.log('draw');
-            currentFabVideos.current.push(fabVideo);
         });
     }
 
     useEffect(() => {
+        if (videoRef.current) {
+            // console.log('videoref', videoRef.current);
+            const video = videoRef.current;
+            video.addEventListener('loadeddata', () => {
+                createAndRenderCanvas();
+            })
+        }
         if (!isFaceDetecting.detecting || !videoRef.current) {
-
             return;
         }
+
 
         const video = videoRef.current;
         let onPlay;
         let onPause;
 
+
         const processVideo = async () => {
 
             video.width = video.videoWidth;
-            video.height = video.videoHeight; 
+            video.height = video.videoHeight;
 
             const detectFace = async () => {
                 if (!video) return;
@@ -112,43 +111,39 @@ const FaceDetectionCanvas = () => {
                 video.muted = true;
                 video.play();
 
-
                 const aspectRatio = videoRef.current.videoWidth / videoRef.current.videoHeight;
 
                 const displaySize = { width: aspectRatio > 1 ? 640 : 360, height: aspectRatio < 1 ? 640 : 360 };
                 const intervalId = setInterval(async () => {
                     const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions());
                     const resizedDetections = faceapi.resizeResults(detections, displaySize);
-                    console.log(resizedDetections);
-                    setFaceDetector((item) => [...item, resizedDetections]);
+                    // console.log('resize', resizedDetections);
+
+                    faceDetector.current = [...faceDetector.current, resizedDetections];
+                    drawFabVideoClipPath(resizedDetections)
                 }, 1000 / 0.8);
 
                 video.addEventListener("ended", async () => {
                     video.playbackRate = 1;
                     video.muted = false;
                     clearInterval(intervalId);
-                    // await video.remove();
                     setIsProcessing(false);
-                    createAndRenderCanvas();
-
                 });
             }
 
             setIsProcessing(true);
             detectFace();
 
-            console.log(faceDetector);
+            // console.log(faceDetector.current);
 
             onPlay = () => {
                 const intervalId = setInterval(() => {
-                    if (index < faceDetector.length) {
-                        drawRect(faceDetector[index]);
+                    if (index < faceDetector.current.length) {
+                        drawFabVideoClipPath(faceDetector.current[index]);
                         index++;
                     } else {
+                        index = 0;
                         clearInterval(intervalId);
-                        if (currentFabVideos.current.length > 0) {
-                            // currentFabVideos.current.forEach(curr => fabCanvas.current.remove(curr))
-                        }
                     }
                 }, 1000);
 
@@ -156,11 +151,9 @@ const FaceDetectionCanvas = () => {
             }
 
             onPause = () => {
-                if (currentFabVideos.current.length > 0)
-                    // currentFabVideos.current.forEach((curr) => fabCanvas.current.remove(curr));
-                    intervalIds.forEach((id) => {
-                        clearInterval(id);
-                    });
+                intervalIds.forEach((id) => {
+                    clearInterval(id);
+                });
             }
 
             video.addEventListener('play', onPlay);
@@ -196,46 +189,3 @@ const FaceDetectionCanvas = () => {
 };
 
 export default FaceDetectionCanvas;
-
-
-/*
-           
-let rect = new fabric.Rect({
-   left: 0,
-   right: box?.left - 300,
-   top: 0,
-   width: box?.width + 40,
-   height: fabCanvas.current.height,
-   fill: "green",
-   // stroke: "black",
-   // strokeWidth: 2,
-   // selectable: false,
-   // cornerColor: "black",
-   // cornerStrokeColor: "black",
-   // borderColor: "black", 
-   evented: false,
-   selectable: false
-});
-let rect1 = new fabric.Rect({
-   left: box?.right + 100,
-   top: 0,
-   width: box?.width + 640,
-   height: fabCanvas.current.height,
-   fill: "yellow",
-   // stroke: "black",
-   // strokeWidth: 2,
-   // selectable: false,
-   // cornerColor: "black",
-   // cornerStrokeColor: "black",
-   // borderColor: "black",
-   evented: false,
-   // selectable: false
-});
-
-fabCanvas.current.add(rect);
-fabCanvas.current.add(rect1);
-fabCanvas.current.bringToFront(rect);
-fabCanvas.current.setActiveObject(rect);
-currentFabVideos.push(rect);
-
-*/
