@@ -35,7 +35,7 @@ const Actions = () => {
     return (
         <div className={`${showActions ? "flex" : "hidden"}`}>
             <ProgressBar />
-            <div className={`fixed bottom-0 left-0 right-0 items-end justify-center pb-4 bg-gradient-to-b from-transparent transition-all duration-500 to-black`}>
+            {/* <div className={`fixed bottom-0 left-0 right-0 items-end justify-center pb-4 bg-gradient-to-b from-transparent transition-all duration-500 to-black`}>
                 {videoFile && (
                     <div className="flex items-center justify-center gap-3 sm:gap-5">
                         <Volume />
@@ -45,9 +45,9 @@ const Actions = () => {
                         <FullScreen />
                     </div>
                 )}
-            </div>
+            </div> */}
             <div className={`fixed top-0 right-0 flex items-center justify-between gap-5 pt-5 pr-1 w-full`}>
-                <Loop />
+                {/* <Loop /> */}
                 <ResetButton />
             </div>
         </div>

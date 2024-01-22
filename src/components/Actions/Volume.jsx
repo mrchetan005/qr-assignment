@@ -39,7 +39,7 @@ const Volume = () => {
                 <IconButton
                     variant="text"
                     color="white"
-                    className='mb-2 transition duration-500 rounded-full shadow hover:scale-125'
+                    className=' transition duration-500 rounded-full shadow hover:scale-125'
                     size="md"
                     onClick={toggleMute}
                 >

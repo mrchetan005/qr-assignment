@@ -14,7 +14,8 @@ const FaceDetectButton = ({ isFaceDetecting, setIsFaceDetecting }) => {
         if (!isModelsLoaded) return false;
         setShowBadge(false);
         setIsFaceDetecting((prev) => ({
-            detecting: !prev.detecting
+            detecting: true
+            // detecting: !prev.detecting
         }));
     };
 

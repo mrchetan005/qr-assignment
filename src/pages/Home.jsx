@@ -14,7 +14,7 @@ const Home = () => {
         }
     }
     return (
-        <div className="flex flex-col items-center justify-center text-center text-white space-y-7">
+        <div className="flex h-screen flex-col items-center justify-center text-center text-white space-y-7">
             <h1 className="text-3xl font-semibold">AI Powered Video Player</h1>
             <p className="text-xs max-w-72">Delve into a captivating viewing experience as our AI-driven video player decodes facial expressions, revealing emotions, age, and gender in real-time.</p>
 

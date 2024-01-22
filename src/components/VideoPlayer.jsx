@@ -7,14 +7,14 @@ const VideoPlayer = () => {
     const { videoFile, videoRef } = useVideoContext();
 
     return (
-        <div className='relative flex items-center justify-center w-full h-full group '>
+        <div className='relative w-full h-full group flex-[4]'>
             <FaceDetectionCanvas />
             <video
                 ref={videoRef}
                 className="hidden"
                 src={videoFile && URL.createObjectURL(videoFile)}
-                crossOrigin='anonymous'>
-            </video>
+                crossOrigin='anonymous' />
+
             <Actions />
         </div>
     )

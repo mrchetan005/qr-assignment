@@ -7,6 +7,7 @@ const ProgressBar = () => {
     const { videoRef } = useVideoContext();
     const [completed, setCompleted] = useState(0.1);
 
+
     useEffect(() => {
         const video = videoRef.current;
 
