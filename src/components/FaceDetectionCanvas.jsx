@@ -1,29 +1,36 @@
 import { useEffect, useRef, useState } from 'react';
-import * as faceapi from 'face-api.js';
 import { useVideoContext } from '../hooks/useVideoContext';
-import FaceDetectButton from './Utils/FaceDetectButton';
+// import FaceDetectButton from './Utils/FaceDetectButton';
 import { fabric } from 'fabric';
 import Processing from './Utils/Processing';
+import api from '../api';
+
 
 const FaceDetectionCanvas = () => {
-    const [isFaceDetecting, setIsFaceDetecting] = useState({ detecting: false });
+    // const [isFaceDetecting, setIsFaceDetecting] = useState({ detecting: false });
     const [isProcessing, setIsProcessing] = useState(false);
+    const [detections, setDetections] = useState([]);
     const fabVideo = useRef(null);
-    const faceDetector = useRef([]);
-    const { videoRef, canvasRef } = useVideoContext();
+    const { videoRef, canvasRef, videoFile } = useVideoContext();
     const fabCanvas = useRef(null);
     const animationFrame = useRef(null);
     let intervalIds = useRef([]);
 
-    let index = 0;
     let verticalVideoCanvasWidth = 9 / 16 * fabCanvas.current?.height;
 
     const createAndRenderCanvas = async () => {
+        const video = videoRef.current;
+
+        if (!video) {
+            console.log('video not found');
+            return;
+        }
+
         fabCanvas.current = null;
-        const aspectRatio = videoRef.current.videoWidth / videoRef.current.videoHeight;
+        const aspectRatio = video.videoWidth / video.videoHeight;
 
         fabCanvas.current = new fabric.Canvas(canvasRef.current, {
-            backgroundColor: "transparent",
+            backgroundColor: "gray",
             width: aspectRatio > 1 ? 854 : 480,
             height: aspectRatio > 1 ? 480 : 854
         });
@@ -36,16 +43,19 @@ const FaceDetectionCanvas = () => {
             width: verticalVideoCanvasWidth,
             height: canvasRef.current.height,
             absolutePositioned: true
-        })
+        });
 
-        const videoCanvas = new fabric.Image(videoRef.current, {
+        console.log('video => ', video);
+
+        const videoCanvas = new fabric.Image(video, {
             left: 0,
             top: 0,
-            width: videoRef.current.videoWidth,
-            height: videoRef.current.videoHeight,
-            scaleX: fabCanvas.current.width / videoRef.current.videoWidth,
-            scaleY: fabCanvas.current.height / videoRef.current.videoHeight,
+            width: video.videoWidth,
+            height: video.videoHeight,
+            scaleX: fabCanvas.current.width / video.videoWidth,
+            scaleY: fabCanvas.current.height / video.videoHeight,
             clipPath,
+            backgroundColor: "green",
             // visible: false,
             objectCaching: true,
             // evented: false,
@@ -64,11 +74,13 @@ const FaceDetectionCanvas = () => {
     }
 
     const drawFabVideoClipPath = (coord) => {
-
         console.log('drawing', coord);
-        coord.forEach(({ left, width }) => {
+        if (!coord?.length) return;
+
+        coord.forEach(({ x1, width }) => {
             fabVideo.current.set({
-                left: -left + (width > (verticalVideoCanvasWidth / 2) ? -width / 8 : width / 2),
+                top: 0,
+                left: -x1 + (width > (verticalVideoCanvasWidth / 2) ? -width / 8 : width / 2),
             });
 
             fabCanvas.current.add(fabVideo.current);
@@ -78,118 +90,77 @@ const FaceDetectionCanvas = () => {
         });
     }
 
-    useEffect(() => {
-        if (videoRef.current) {
-            // console.log('videoref', videoRef.current);
-            const video = videoRef.current;
-            video.addEventListener('loadeddata', () => {
-                createAndRenderCanvas();
-            })
+    const getDetections = async () => {
+        try {
+            setIsProcessing(true);
+            const formdata = new FormData();
+            formdata.append('file', videoFile);
+            formdata.append('height', fabCanvas.current.height);
+            formdata.append('width', fabCanvas.current.width);
+            const data = await api.post(`/detect`, formdata);
+            // console.log('detections',data.data.detections.boxes);
+            setDetections(data.data.detections.boxes);
+        } catch (error) {
+            console.log(error.message);
+        } finally {
+            setIsProcessing(false);
         }
-        if (!isFaceDetecting.detecting || !videoRef.current) {
+    }
+
+    console.log('detections', detections);
+
+
+    useEffect(() => {
+        const video = videoRef.current;
+
+        if (!video) {
+            console.log('video not found');
             return;
         }
 
-        const video = videoRef.current;
-        let onPlay;
-        let onPause;
-        let onSeek;
-
-
-        const processVideo = async () => {
-
-            video.width = video.videoWidth;
-            video.height = video.videoHeight;
-
-            const detectFace = async () => {
-                if (!video) return;
-                video.playbackRate = 4;
-                video.muted = true;
-                video.play();
-
-                const aspectRatio = videoRef.current.videoWidth / videoRef.current.videoHeight;
-
-                const displaySize = { width: aspectRatio > 1 ? 854 : 480, height: aspectRatio < 1 ? 854 : 480 };
-                const intervalId = setInterval(async () => {
-                    const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions());
-                    const resizedDetections = faceapi.resizeResults(detections, displaySize);
-                    // console.log('resize', resizedDetections);
-
-                    const customizedDetections = customiseDetections(resizedDetections, video.currentTime);
-
-                    faceDetector.current = [...faceDetector.current, customizedDetections];
-                    // drawFabVideoClipPath(resizedDetections);
-                }, 1000 / 4);
-
-                video.addEventListener("ended", async () => {
-                    video.playbackRate = 1;
-                    video.muted = false;
-                    clearInterval(intervalId);
-                    setIsProcessing(false);
-                    console.log('detections', faceDetector.current);
-                });
-            }
-
-            setIsProcessing(true);
-            await detectFace();
-
-
-            onPlay = () => {
-                const intervalId = setInterval(() => {
-                    if (index < faceDetector.current.length) {
-                        // console.log('drawing');
-
-                        drawFabVideoClipPath(faceDetector.current[index]);
-                        index++;
-                    } else {
-                        index = 0;
-                        clearInterval(intervalId);
-                    }
-                }, 1000);
-
-                intervalIds.current.push(intervalId);
-            }
-
-            onPause = () => {
-                console.log('paused');
-                intervalIds.current.forEach((id) => {
-                    clearInterval(id);
-                });
-                intervalIds.current = [];
-                // console.log(intervalIds.current);
-            }
-
-            onSeek = () => {
-                console.log('seeked', video.currentTime);
-                faceDetector.current.forEach(({ currentTime }, i) => {
-                    if (video.currentTime >= (currentTime - 1) && video.currentTime <= (currentTime + 1)) {
-                        index = i;
-                    }
-                });
-                console.log(index);
-            }
-
-            video.addEventListener('play', onPlay);
-            video.addEventListener('pause', onPause);
-            video.addEventListener('seeked', onSeek);
+        const onLoaded = async () => {
+            console.log('video loaded');
+            createAndRenderCanvas();
+            await getDetections();
         }
 
-        processVideo();
+        const onPlay = () => {
+            const currentTime = Math.round(video.currentTime);
+            // console.log('currenttime', currentTime, detections);
+            drawFabVideoClipPath(detections[currentTime]);
+            const intervalId = setInterval(() => {
+                const currentTime = Math.round(video.currentTime);
+                drawFabVideoClipPath(detections[currentTime]);
+            }, 1000);
+
+            intervalIds.current.push(intervalId);
+        }
+
+        const onPause = () => {
+            intervalIds.current.forEach((id) => {
+                clearInterval(id);
+            });
+        }
+
+        const onSeek = () => {
+            intervalIds.current.forEach((id) => {
+                clearInterval(id);
+            });
+            onPlay();
+        }
+
+        video.addEventListener('loadeddata', onLoaded);
+        video.addEventListener('play', onPlay);
+        video.addEventListener('pause', onPause);
+        video.addEventListener('seeked', onSeek);
 
         return () => {
+            video.removeEventListener('loadeddata', onLoaded);
             video.removeEventListener('play', onPlay);
             video.removeEventListener('pause', onPause);
             video.removeEventListener('seeked', onSeek);
         }
-    }, [isFaceDetecting.detecting, videoRef]);
-
-    // useEffect(() => {
-    //     console.log('time update');
-    //     intervalIds.current.forEach((id) => {
-    //         clearInterval(id);
-    //     });
-    //     intervalIds.current = [];
-    // }, [isSeeked]);
+    }, [detections]);
 
     return (
         <>
@@ -198,28 +169,14 @@ const FaceDetectionCanvas = () => {
                 ref={canvasRef}
                 height={0}
                 width={0}
-            // className="absolute inset-0 z-50 object-contain object-center w-full h-full bg-transparent pointer-events-none"
             />
 
-            <div className="fixed right-0 z-50 pr-5 top-20">
+            {/* <div className="fixed right-0 z-50 pr-5 top-20">
                 <FaceDetectButton isFaceDetecting={isFaceDetecting} setIsFaceDetecting={setIsFaceDetecting} />
-            </div>
+            </div> */}
             <Processing open={isProcessing} />
         </>
     );
 };
 
 export default FaceDetectionCanvas;
-
-
-const customiseDetections = (detections, currentTime, leftMargin = 10) => {
-    return detections.map((d) => {
-        const leftModified = Math.round(d.box.left / leftMargin) * leftMargin;
-        const detection = {
-            left: leftModified,
-            width: d.box.width,
-            currentTime
-        }
-        return detection;
-    })
-}

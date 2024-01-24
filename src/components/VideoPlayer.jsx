@@ -13,8 +13,8 @@ const VideoPlayer = () => {
                 ref={videoRef}
                 className="hidden"
                 src={videoFile && URL.createObjectURL(videoFile)}
-                crossOrigin='anonymous' />
-
+                crossOrigin='anonymous'
+            />
             <Actions />
         </div>
     )
